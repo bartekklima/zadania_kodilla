@@ -1,33 +1,52 @@
+# Klasa podstawowa
 class BaseContact:
-    def __init__(self,name,surname,email,number):
+    def __init__(self, name, ascii_emai, phone_number):
         self.name = name
-        self.surname = surname
-        self.email = email
-        self.number = number
+        self.ascii_emai = ascii_emai
+        self.phone_number = phone_number
     
+    def __repr__(self):
+        return f"{self.name} {self.ascii_emai} {self.phone_number}"
     @property
     def contact(self):
-        print(f"Wybieram numer {self.number} i dzwonię do {self.name} {self.surname}")
+        print(f"Wybieram numer {self.phone_number} i dzwonię do {self.name}")
     @property
     def label_length(self):
-        print("Ilość liter imienia = %d i nazwiska = %d" % (len(self.name),len(self.surname)))
+        name_surname = self.name.split(' ')
+        print("Ilość liter imienia = %d i nazwiska = %d" % (len(name_surname[0]),len(name_surname[1])))
 
+# Klasa dziedziczona
 class BusinessContact(BaseContact):
-    def __init__(self, position, firm, *arg, **kwarg):
+    def __init__(self, job, company, *arg, **kwarg):
         super().__init__(*arg, **kwarg)
-        self.position = position
-        self.firm = firm
+        self.job = job
+        self.company = company
 
-S_Czarnecki = namecard("Szymon","Czarnecki","SzymonCzarnecki@dayrep.com","Standard Food","Fire fighter")
-K_Wieczorek = namecard("Kasper","Wieczorek","KasperWieczorek@jourrapide.com","Peter Reeves","Architect")
-L_Dudek = namecard("Lucyna","Dudek","LucynaDudek@dayrep.com","The High Heelers","Maintenance machinist")
-J_Nowak = namecard("Jarek","Nowak","JarekNowak@armyspy.com","Joseph Magnin","Security officer")
-M_Borkowski = namecard("Mścisław","Borkowski","MscislawBorkowski@armyspy.com","Glicks Furniture","Audio control engineer")
+# Kreator tożsamości
+def create_contacts(namecard_kind, amount):
+    from faker import Faker 
+    fake = Faker("pl_PL")  
+    namecard = []
 
-namecard_pack = [M_Borkowski, S_Czarnecki, L_Dudek, J_Nowak, K_Wieczorek]
+    for i in range(amount):
+        if namecard_kind == 'BaseContact':
+            namecard.append(BaseContact(
+                fake.name(),
+                fake.ascii_email(),
+                fake.phone_number()
+            ))
+        elif namecard_kind == 'BusinessContact':
+            namecard.append(BusinessContact(
+                fake.company(),
+                fake.job(),
+                fake.name(),
+                fake.ascii_company_email(),
+                fake.phone_number()
+            ))
+        else:
+            raise Error(f'{namecard_kind} isn\'t excepted value. You can choose \'BaseContact\' or \'BusinessContact\'')
+    return namecard
 
-for i in namecard_pack:
-    print("{:10}{:12}{}".format(i.name, i.surname, i.email))
-
-S_Czarnecki.contact
-S_Czarnecki.label_length   
+# Wyświetlanie metod contact dla wizytówek
+for i in create_contacts('BusinessContact', 3):
+    i.contact
