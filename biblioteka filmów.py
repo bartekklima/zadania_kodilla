@@ -26,13 +26,13 @@ class Serial(Film):
         self.number_of_plays += 1
         return "{} S{:02}E{:02}".format(self.title, self.season_number, self.episode_number)
 
-
+##################################################################################################
 
 
 def list_maker(a):                                           # Przypisywaanie danych do film i serial
                                                                  # oraz umieszcznie ich w jednej liscie
     def body_list_maker(lista):
-        kind=input('enter kind: ')                                       
+        kind=input('enter kind ("film" or "serial"): ')                                       
         Title = input('Title: ')
         Publication_date = int(input('Publication_date: '))
         Type = input('Type: ')
@@ -71,27 +71,21 @@ def list_maker(a):                                           # Przypisywaanie da
 
 
 
-def list_filter(lista):             # Funkcja rozdzielająca bibliotekę filmów i seriali
+def get_movies(lista):             # Funkcja zwracajáca listę filmów 
     films = []
-    serials = []
     for i in lista:
         if type(i)==Film:
             films.append(i)
-        else:
-            serials.append(i)
-    
-    # try:
-    #     for i in films:
-    #         print('Films',i)
-    # except:
-    #     pass
-    # try:
-    #     for i in serials:
-    #         print('Serials',i)
-    # except:
-    #     pass
+    return sorted(films, key=lambda element: element.title)
 
-    return films, serials
+def get_series(lista):             # Funkcja zwracajáca listę seriali
+    serials = []
+    for i in lista:
+        if type(i)==Serial:
+            serials.append(i)
+    return sorted(serials, key=lambda element: element.title)
+
+
     
 
 def search(lista):                # Szukanie video po nazwie w bibliotece
@@ -101,21 +95,43 @@ def search(lista):                # Szukanie video po nazwie w bibliotece
             index = lista.index(i)
             return lista[index]
 
+import random
 
+def generate_views(lista):                # funkcja wybiera losowy film i odtwarzam go losową ilość razy
+    a = random.choice(lista)
+    for i in range(random.randint(1,100)):
+        a.play()
+    print(a.number_of_plays)
+    
+
+def do_10_times(lista):             # 10 razy wykonuje funkcje generate_views
+    for i in range(10):
+        generate_views(lista)
+
+def top_titles(lista):
+    n=int(input("how many top viewed films do you want?: "))                    # funkcja zwraca liste n filmów 
+    a=sorted(lista, key=lambda element: element.number_of_plays, reverse=True)  # najwięcej razy oglądanych
+
+    content_type=input('Do you want to show films or serials? ("films"/"serials"): ')
+    while content_type != 'films' and content_type != 'serials':
+        content_type = input('You wrote wrong kind. Enter "films" or "serials": ')
+        
+    if content_type=='films':
+        return sorted(get_movies(a[:n]), key=lambda element: element.number_of_plays, reverse=True)
+    else:
+        return sorted(get_series(a[:n]), key=lambda element: element.number_of_plays, reverse=True)
 
 
 library=[]                                # Tworzę bibliotekę filmów i seriali
 list_maker(library)
-print(library)
 
-# for i in a:                           # Odtwarzam wszystkie filmy i serial z biblioteki
-#     i.play()
-#     print(i, '\n', i.number_of_plays, '\n')
-
-
-sorted_library = list_filter(library)       # Rozdzielam bibliotekę filmów i seriali
-films, serials = sorted_library
-print('\n',films, serials)
+sorted_library = get_movies(library)       # Rozdzielam bibliotekę filmów i seriali
+print('\n',sorted_library)
 
 looking_video = search(library)             # Szukanie video po nazwie w bibliotece
 print(looking_video)
+
+do_10_times(library)             # wybieram losowy film i odtwarzam go losową ilość razy
+
+top_n = top_titles(library)         # lista n filmów najwięcej razy oglądanych
+print(top_n)
